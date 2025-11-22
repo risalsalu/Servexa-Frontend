@@ -1,10 +1,31 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
+import React, { useEffect } from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App";
+import "./index.css";
+import { useAuthStore } from "./store/authStore";
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+function InitApp() {
+  const initialize = useAuthStore((s) => s.initialize);
+  const loading = useAuthStore((s) => s.loading);
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+
+  if (loading) return null;
+
+  return <App />;
+}
+
+export default function Root() {
+  return (
+    <React.StrictMode>
+      <BrowserRouter>
+        <InitApp />
+      </BrowserRouter>
+    </React.StrictMode>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<Root />);
