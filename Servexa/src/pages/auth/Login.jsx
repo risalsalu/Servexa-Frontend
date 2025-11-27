@@ -1,28 +1,26 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import Input from "../../components/common/Input";
-import GoogleButton from "../../components/auth/GoogleButton";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
+import Input from "../../components/common/Input";
 
 export default function Login() {
-  const location = useLocation();
-  const navigate = useNavigate();
   const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const [email, setEmail] = useState("");
+  const [emailOrPhone, setEmailOrPhone] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   const isUser = location.pathname.startsWith("/user");
-  const role = isUser ? "Customer" : "Owner";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     setError("");
     try {
-      await login(email, password, role);
+      await login(emailOrPhone, password);
       navigate(isUser ? "/user/dashboard" : "/shop/dashboard");
     } catch {
       setError("Invalid credentials");
@@ -46,10 +44,10 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            placeholder="Email or Phone"
+            value={emailOrPhone}
+            onChange={(e) => setEmailOrPhone(e.target.value)}
           />
           <Input
             type="password"
@@ -57,6 +55,7 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+
           <button
             type="submit"
             disabled={submitting}
@@ -66,20 +65,12 @@ export default function Login() {
           </button>
         </form>
 
-        <div className="flex items-center my-4">
-          <div className="flex-1 h-px bg-gray-300" />
-          <span className="px-3 text-gray-500 text-sm">OR</span>
-          <div className="flex-1 h-px bg-gray-300" />
-        </div>
-
-        <GoogleButton role={role} />
-
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="text-center text-sm text-gray-600 mt-6">
           Don’t have an account?{" "}
           <Link
             to={isUser ? "/user/register" : "/shop/register"}
-            className="text-blue-600 hover:underline font-semibold"
-          >
+            className="text-blue-600 font-semibold hover:underline"
+         >
             Register
           </Link>
         </p>
