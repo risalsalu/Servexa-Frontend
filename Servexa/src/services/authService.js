@@ -3,7 +3,7 @@ import axiosClient from "../api/axiosClient";
 const login = async (emailOrPhone, password) => {
   const res = await axiosClient.post("/api/auth/login", {
     emailOrPhone,
-    password
+    password,
   });
   return res.data;
 };
@@ -14,14 +14,14 @@ const registerUser = async ({ fullName, email, phone, password }) => {
     email,
     phone,
     password,
-    role: "Customer"
+    role: "Customer",
   });
   return res.data;
 };
 
 const registerShopOwner = async (formData) => {
   const res = await axiosClient.post("/api/auth/register-shopowner", formData, {
-    headers: { "Content-Type": "multipart/form-data" }
+    headers: { "Content-Type": "multipart/form-data" },
   });
   return res.data;
 };

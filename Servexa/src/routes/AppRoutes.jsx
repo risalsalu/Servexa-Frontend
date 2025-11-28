@@ -4,6 +4,7 @@ import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 import UserDashboard from "../pages/user/UserDashboard";
 import ShopOwnerDashboard from "../pages/shop/ShopOwnerDashboard";
+import AdminDashboard from "../pages/admin/AdminDashboard";
 import ProtectedRoute from "./ProtectedRoute";
 
 export default function AppRoutes() {
@@ -29,6 +30,16 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["ShopOwner"]}>
             <ShopOwnerDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route path="/admin/login" element={<Login />} />
+      <Route
+        path="/admin/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={["Admin"]}>
+            <AdminDashboard />
           </ProtectedRoute>
         }
       />

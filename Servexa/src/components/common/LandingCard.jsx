@@ -7,6 +7,7 @@ export default function LandingCard() {
       <p className="text-gray-600 mb-8">
         Manage your salon and spa bookings with ease
       </p>
+
       <div className="flex flex-col gap-4">
         <Link
           to="/user/login"
@@ -14,11 +15,19 @@ export default function LandingCard() {
         >
           Continue as User
         </Link>
+
         <Link
           to="/shop/login"
           className="w-full bg-green-600 text-white py-3 rounded-xl text-lg font-semibold hover:bg-green-700"
         >
           Continue as Shop Owner
+        </Link>
+
+        <Link
+          to="/admin/login"
+          className="w-full bg-gray-800 text-white py-3 rounded-xl text-lg font-semibold hover:bg-gray-900"
+        >
+          Continue as Admin
         </Link>
       </div>
     </div>

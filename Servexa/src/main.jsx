@@ -5,7 +5,7 @@ import App from "./App";
 import "./index.css";
 import { useAuthStore } from "./store/authStore";
 
-function InitApp() {
+export function InitApp() {
   const initialize = useAuthStore((s) => s.initialize);
   const loading = useAuthStore((s) => s.loading);
 
@@ -18,7 +18,7 @@ function InitApp() {
   return <App />;
 }
 
-export default function Root() {
+export function Root() {
   return (
     <React.StrictMode>
       <BrowserRouter>

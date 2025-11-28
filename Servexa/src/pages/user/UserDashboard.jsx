@@ -3,22 +3,17 @@ import useAuth from "../../hooks/useAuth";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 export default function UserDashboard() {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const axiosPrivate = useAxiosPrivate();
   const [profile, setProfile] = useState(null);
-  
-useEffect(() => {
-  const load = async () => {
-    try {
-      const res = await axiosPrivate.get("/api/users/me");
-      setProfile(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  load();
-}, [axiosPrivate]);
 
+  useEffect(() => {
+    const load = async () => {
+      const res = await axiosPrivate.get("/api/users/me");
+      setProfile(res.data.data);
+    };
+    load();
+  }, [axiosPrivate]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -32,9 +27,6 @@ useEffect(() => {
             Logout
           </button>
         </div>
-        <p className="mb-3 text-gray-600">
-          Welcome, {user?.name || user?.email}
-        </p>
         {profile && (
           <pre className="bg-gray-100 p-4 rounded-xl text-xs overflow-x-auto">
             {JSON.stringify(profile, null, 2)}
