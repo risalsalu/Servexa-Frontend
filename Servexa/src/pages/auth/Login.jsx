@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import useAuth from "../../hooks/useAuth";
+import { useAuthStore } from "../../store/authStore";
 import Input from "../../components/common/Input";
 
 export default function Login() {
-  const { login } = useAuth();
+  const login = useAuthStore((s) => s.login);
   const navigate = useNavigate();
 
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -18,7 +19,8 @@ export default function Login() {
     setError("");
 
     try {
-      const role = await login(emailOrPhone, password);
+      const data = await login(emailOrPhone, password);
+      const role = data.role;
 
       if (role === "Admin") navigate("/admin/dashboard");
       else if (role === "ShopOwner") navigate("/shop/dashboard");
@@ -50,12 +52,21 @@ export default function Login() {
             onChange={(e) => setEmailOrPhone(e.target.value)}
           />
 
-          <Input
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="relative">
+            <Input
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-2.5 text-sm text-gray-600"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
 
           <button
             type="submit"
@@ -68,7 +79,10 @@ export default function Login() {
 
         <p className="text-center text-sm text-gray-600 mt-6">
           Don’t have an account?{" "}
-          <Link to="/user/register" className="text-blue-600 font-semibold hover:underline">
+          <Link
+            to="/user/register"
+            className="text-blue-600 font-semibold hover:underline"
+          >
             Register
           </Link>
         </p>

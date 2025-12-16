@@ -1,35 +1,37 @@
 import { create } from "zustand";
+import authService from "../services/authService";
 
 export const useAuthStore = create((set) => ({
-  token: null,
   role: null,
   userId: null,
-  loading: true,
+  isAuthenticated: false,
+  isLoading: false,
 
-  initialize: () => {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
-    const userId = localStorage.getItem("userId");
-
+  login: async (emailOrPhone, password) => {
+    set({ isLoading: true });
+    const data = await authService.login(emailOrPhone, password);
     set({
-      token: token || null,
-      role: role || null,
-      userId: userId || null,
-      loading: false
+      role: data.role,
+      userId: data.userId,
+      isAuthenticated: true,
+      isLoading: false
+    });
+    return data;
+  },
+
+  logout: async () => {
+    await authService.logout();
+    set({
+      role: null,
+      userId: null,
+      isAuthenticated: false,
+      isLoading: false
     });
   },
 
-  setAuth: (data) =>
+  setAuthenticated: (role) =>
     set({
-      token: data.token,
-      role: data.role,
-      userId: data.userId
-    }),
-
-  clearAuth: () =>
-    set({
-      token: null,
-      role: null,
-      userId: null
+      role,
+      isAuthenticated: true
     })
 }));

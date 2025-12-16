@@ -4,6 +4,7 @@ import authService from "../../services/authService";
 export default function Register() {
   const [userType, setUserType] = useState("customer");
   const isUser = userType === "customer";
+
   const [formData, setFormData] = useState({
     fullName: "",
     businessName: "",
@@ -14,6 +15,8 @@ export default function Register() {
     latitude: "",
     longitude: ""
   });
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const [files, setFiles] = useState({
     shopPhoto: null,
@@ -74,11 +77,11 @@ export default function Register() {
   };
 
   return (
-    <form onSubmit={submit} className="p-6 space-y-4">
+    <form onSubmit={submit} className="p-6 space-y-4 max-w-md mx-auto">
       <select
         value={userType}
         onChange={(e) => setUserType(e.target.value)}
-        className="border p-2 rounded"
+        className="border p-2 rounded w-full"
       >
         <option value="customer">Customer</option>
         <option value="shop">Shop Owner</option>
@@ -114,13 +117,22 @@ export default function Register() {
         className="border p-2 w-full"
       />
 
-      <input
-        name="password"
-        type="password"
-        placeholder="Password"
-        onChange={handleInput}
-        className="border p-2 w-full"
-      />
+      <div className="relative">
+        <input
+          name="password"
+          type={showPassword ? "text" : "password"}
+          placeholder="Password"
+          onChange={handleInput}
+          className="border p-2 w-full"
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 top-2.5 text-sm text-gray-600"
+        >
+          {showPassword ? "Hide" : "Show"}
+        </button>
+      </div>
 
       {!isUser && (
         <>

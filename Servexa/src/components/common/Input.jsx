@@ -1,9 +1,4 @@
-export default function Input({
-  type = "text",
-  value,
-  onChange,
-  placeholder,
-}) {
+export default function Input({ type = "text", value, onChange, placeholder }) {
   return (
     <input
       type={type}

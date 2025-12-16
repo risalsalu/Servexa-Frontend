@@ -1,33 +1,33 @@
-import axiosClient from "../api/axiosClient";
+import authApi from "../api/auth.api";
 
 const login = async (emailOrPhone, password) => {
-  const res = await axiosClient.post("/api/auth/login", {
-    emailOrPhone,
-    password,
-  });
-  return res.data;
+  const res = await authApi.login({ emailOrPhone, password });
+  return res.data.data;
 };
 
-const registerUser = async ({ fullName, email, phone, password }) => {
-  const res = await axiosClient.post("/api/auth/register-user", {
-    fullName,
-    email,
-    phone,
-    password,
-    role: "Customer",
-  });
-  return res.data;
+const registerUser = async (data) => {
+  const res = await authApi.registerUser(data);
+  return res.data.data;
 };
 
 const registerShopOwner = async (formData) => {
-  const res = await axiosClient.post("/api/auth/register-shopowner", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-  return res.data;
+  const res = await authApi.registerShopOwner(formData);
+  return res.data.data;
 };
 
-const logout = async (userId) => {
-  await axiosClient.post("/api/auth/logout", { userId });
+const refreshToken = async () => {
+  const res = await authApi.refreshToken();
+  return res.data.data;
 };
 
-export default { login, registerUser, registerShopOwner, logout };
+const logout = async () => {
+  await authApi.logout({});
+};
+
+export default {
+  login,
+  registerUser,
+  registerShopOwner,
+  refreshToken,
+  logout
+};
