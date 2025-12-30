@@ -12,7 +12,7 @@ export default function ShopOwnerDashboard() {
   ];
 
   const recentBookings = [
-    { id: 1, customer: "John Smith", service: "Haircut & Style", time: "10:30 AM", status: "confirmed" },
+    { id: 1, customer: "John ", service: "Haircut & Style", time: "10:30 AM", status: "confirmed" },
     { id: 2, customer: "Emma Wilson", service: "Manicure", time: "11:45 AM", status: "pending" },
     { id: 3, customer: "Michael Brown", service: "Beard Trim", time: "2:15 PM", status: "confirmed" },
     { id: 4, customer: "Sarah Davis", service: "Full Grooming", time: "4:00 PM", status: "cancelled" }
