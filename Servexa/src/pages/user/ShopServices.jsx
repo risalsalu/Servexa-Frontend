@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import serviceService from "../../services/serviceService";
+import userShopService from "../../services/userShopService";
 import bookingService from "../../services/bookingService";
 import { useAuthStore } from "../../store/authStore";
 import { useBookingStore } from "../../store/bookingStore";
@@ -22,12 +22,16 @@ const ShopServices = () => {
   const fetchShopDetails = async () => {
     try {
       setIsLoading(true);
-      const data = await serviceService.getShopDetails(id);
-      setShop(data);
-      // Assuming API returns services inside shop object or we fetch separately. 
-      // If separate: const svcs = await serviceService.getShopServices(id); 
-      // Based on common patterns and prompt, let's assume 'data' has 'services' array.
-      if (data.services) setServices(data.services);
+      const data = await userShopService.getShopDetails(id);
+      if (data) {
+        setShop(data);
+        // Backend UserShopDto typically includes services list
+        if (data.services && Array.isArray(data.services)) {
+          setServices(data.services);
+        } else {
+          setServices([]);
+        }
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -42,56 +46,88 @@ const ShopServices = () => {
     }
 
     try {
-      // Start Draft Booking used strictly for flow
-      // Spec says: POST /api/bookings/draft
-      // Payload likely needs: shopId, serviceId, maybe slotId later?
-      // "Cart" flow vs "Direct Booking". 
-      // If "Book Now" -> Create Draft -> Redirect to Booking Flow
-
+      // Create draft booking
       const draft = await bookingService.createDraft({
-        shopId: id,
+        shopId: Number(id),
         serviceId: serviceId
       });
 
-      setDraftBooking(draft.bookingId, id);
-      navigate(`/booking/${draft.bookingId}`);
+      if (draft && draft.bookingId) {
+        setDraftBooking(draft.bookingId, id);
+        navigate(`/booking/${draft.bookingId}`);
+      } else {
+        alert("Failed to initialize booking.");
+      }
     } catch (err) {
-      alert("Failed to start booking");
+      console.error(err);
+      alert("Failed to start booking. " + (err.response?.data?.message || ""));
     }
   };
 
-  if (isLoading) return <div className="p-8">Loading...</div>;
-  if (!shop) return <div className="p-8">Shop not found</div>;
+  if (isLoading) return <div className="p-8 text-center">Loading shop details...</div>;
+  if (!shop) return <div className="p-8 text-center text-red-500">Shop not found.</div>;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">{shop.shopName}</h1>
-        <p className="text-gray-600 mt-2">{shop.address}</p>
-        <p className="mt-4">{shop.description}</p>
+    <div className="min-h-screen bg-gray-50 pb-12">
+      <div className="relative bg-gray-900 h-64">
+        {shop.imageUrl && (
+          <img src={shop.imageUrl} alt={shop.shopName} className="w-full h-full object-cover opacity-50" />
+        )}
+        <div className="absolute inset-0 flex flex-col justify-end p-8 text-white bg-gradient-to-t from-gray-900 to-transparent">
+          <div className="max-w-7xl mx-auto w-full">
+            <h1 className="text-4xl font-bold mb-2">{shop.shopName}</h1>
+            <p className="text-lg opacity-90">{shop.address}</p>
+            {!shop.isActive && (
+              <div className="mt-4 bg-red-600 text-white inline-block px-4 py-2 rounded font-bold">
+                ⚠️ Currently Offline: {shop.offlineReason}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      <h2 className="text-2xl font-bold mb-6">Services</h2>
-      <div className="bg-white shadow overflow-hidden sm:rounded-md">
-        <ul className="divide-y divide-gray-200">
-          {services.map((svc) => (
-            <li key={svc.id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50">
-              <div>
-                <p className="text-lg font-medium text-gray-900">{svc.name}</p>
-                <p className="text-sm text-gray-500">{svc.duration} mins</p>
-              </div>
-              <div className="flex items-center space-x-4">
-                <span className="text-lg font-bold text-gray-900">${svc.price}</span>
-                <button
-                  onClick={() => handleBookNow(svc.id)}
-                  className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-                >
-                  Book
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="p-6 border-b border-gray-100">
+            <h2 className="text-2xl font-bold text-gray-900">Available Services</h2>
+          </div>
+
+          {services.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              No services available at this shop right now.
+            </div>
+          ) : (
+            <ul className="divide-y divide-gray-100">
+              {services.map((svc) => (
+                <li key={svc.serviceId || svc.id} className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between hover:bg-gray-50 transition-colors">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-lg font-bold text-gray-900">{svc.name}</span>
+                    </div>
+                    <div className="flex items-center text-gray-500 text-sm mt-1 space-x-4">
+                      <span>⏱️ {svc.durationMinutes || svc.duration} mins</span>
+                    </div>
+                    {svc.description && <p className="text-gray-600 mt-2 text-sm">{svc.description}</p>}
+                  </div>
+                  <div className="mt-4 sm:mt-0 flex items-center space-x-6">
+                    <span className="text-2xl font-bold text-gray-900">${svc.price}</span>
+                    <button
+                      onClick={() => handleBookNow(svc.serviceId || svc.id)}
+                      disabled={!shop.isActive}
+                      className={`px-6 py-2.5 rounded-lg font-medium shadow-sm transition-all ${!shop.isActive
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md'
+                        }`}
+                    >
+                      {shop.isActive ? 'Book Now' : 'Unavailable'}
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   );

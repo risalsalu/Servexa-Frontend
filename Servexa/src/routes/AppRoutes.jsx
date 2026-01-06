@@ -18,6 +18,8 @@ import Categories from "../pages/user/Categories";
 import Shops from "../pages/user/Shops";
 import ShopServices from "../pages/user/ShopServices";
 import BookingFlow from "../pages/user/BookingFlow";
+import Addresses from "../pages/user/Addresses";
+import CustomerProfile from "../pages/user/CustomerProfile";
 
 const AppRoutes = () => {
   return (
@@ -42,6 +44,9 @@ const AppRoutes = () => {
       {/* Customer Routes */}
       <Route element={<ProtectedRoute allowedRoles={["Customer"]} />}>
         <Route path="/dashboard" element={<UserDashboard />} />
+        <Route path="/profile" element={<CustomerProfile />} />
+        <Route path="/profile/addresses" element={<Addresses />} />
+        <Route path="/shop/:id" element={<ShopServices />} />
         <Route path="/booking/:bookingId" element={<BookingFlow />} />
       </Route>
 

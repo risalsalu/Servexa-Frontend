@@ -1,24 +1,25 @@
 import axiosClient from "../api/axiosClient";
 
 const addressService = {
-    getAll: async () => {
+    getAddresses: async () => {
         const response = await axiosClient.get("/customers/addresses");
-        return response.data;
+        return response.data?.data || [];
     },
 
-    create: async (addressData) => {
-        const response = await axiosClient.post("/customers/addresses", addressData);
-        return response.data;
+    addAddress: async (payload) => {
+        // Payload: { label, line1, city, pincode, lat, lng }
+        const response = await axiosClient.post("/customers/addresses", payload);
+        return response.data?.data;
     },
 
-    update: async (id, addressData) => {
-        const response = await axiosClient.put(`/customers/addresses/${id}`, addressData);
-        return response.data;
+    updateAddress: async (id, payload) => {
+        const response = await axiosClient.put(`/customers/addresses/${id}`, payload);
+        return response.data?.data;
     },
 
-    delete: async (id) => {
+    deleteAddress: async (id) => {
         const response = await axiosClient.delete(`/customers/addresses/${id}`);
-        return response.data;
+        return response.data?.data;
     }
 };
 
