@@ -18,41 +18,17 @@ export default function LandingCard() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link
-              to="/user/login"
-              className="px-8 py-3 rounded-full bg-[#3b2a1f] text-white font-medium hover:bg-[#2e2018] transition"
-            >
+            <Link to="/login" className="px-8 py-3 rounded-full bg-[#3b2a1f] text-white font-medium">
               Continue as User
             </Link>
 
-            <Link
-              to="/shop/login"
-              className="px-8 py-3 rounded-full bg-white border border-[#3b2a1f] text-[#3b2a1f] font-medium hover:bg-[#ede4dc] transition"
-            >
+            <Link to="/login" className="px-8 py-3 rounded-full bg-white border border-[#3b2a1f] text-[#3b2a1f] font-medium">
               Continue as Shop Owner
             </Link>
 
-            <Link
-              to="/admin/login"
-              className="px-8 py-3 rounded-full bg-[#9c6b4e] text-white font-medium hover:bg-[#84563d] transition"
-            >
+            <Link to="/login" className="px-8 py-3 rounded-full bg-[#9c6b4e] text-white font-medium">
               Admin Access
             </Link>
-          </div>
-
-          <div className="grid grid-cols-3 gap-8 mt-14 text-center">
-            <div>
-              <p className="text-3xl font-semibold text-[#3b2a1f]">1300+</p>
-              <p className="text-sm text-[#6f5a4b]">Customers</p>
-            </div>
-            <div>
-              <p className="text-3xl font-semibold text-[#3b2a1f]">30+</p>
-              <p className="text-sm text-[#6f5a4b]">Our Brands</p>
-            </div>
-            <div>
-              <p className="text-3xl font-semibold text-[#3b2a1f]">2013</p>
-              <p className="text-sm text-[#6f5a4b]">Founded</p>
-            </div>
           </div>
         </div>
 
@@ -61,7 +37,6 @@ export default function LandingCard() {
             src="https://images.unsplash.com/photo-1600948836101-f9ffda59d250?q=80&w=1200&auto=format&fit=crop"
             className="absolute inset-0 w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/10" />
         </div>
       </div>
     </div>

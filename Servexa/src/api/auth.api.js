@@ -2,35 +2,28 @@ import axiosClient from "./axiosClient";
 
 const authApi = {
   registerUser: (data) =>
-    axiosClient.post("/api/Auth/register-user", {
+    axiosClient.post("/api/auth/register-user", {
       ...data,
       role: "Customer"
     }),
 
   registerShopOwner: (data) =>
-    axiosClient.post("/api/Auth/register-shopowner", data),
+    axiosClient.post("/api/auth/register-shopowner", {
+      ...data,
+      role: "ShopOwner"
+    }),
 
   login: (data) =>
-    axiosClient.post("/api/Auth/login", data),
-
-  socialLogin: (data) =>
-    axiosClient.post("/api/Auth/social-login", data),
-
-  refreshToken: (refreshToken) =>
-    axiosClient.post("/api/Auth/refresh-token", {
-      refreshToken
-    }),
+    axiosClient.post("/api/auth/login", data),
 
   logout: (userId) =>
-    axiosClient.post("/api/Auth/logout", {
-      userId
-    }),
+    axiosClient.post("/api/auth/logout", { userId }),
 
   forgotPassword: (data) =>
-    axiosClient.post("/api/Auth/forgot-password", data),
+    axiosClient.post("/api/auth/forgot-password", data),
 
   resetPassword: (data) =>
-    axiosClient.post("/api/Auth/reset-password", data)
+    axiosClient.post("/api/auth/reset-password", data)
 };
 
 export default authApi;
