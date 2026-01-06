@@ -1,18 +1,22 @@
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
+import AppRoutes from "./routes/AppRoutes";
 import { useEffect } from "react";
 import { useAuthStore } from "./store/authStore";
-import AppRoutes from "./routes/AppRoutes";
 
-export default function App() {
-  const initAuth = useAuthStore(s => s.initAuth);
+function App() {
+  const checkAuth = useAuthStore((state) => state.checkAuth);
 
   useEffect(() => {
-    initAuth();
-  }, [initAuth]);
+    checkAuth();
+  }, [checkAuth]);
 
   return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
+    <Router>
+      <div className="min-h-screen bg-gray-100 font-sans text-gray-900">
+        <AppRoutes />
+      </div>
+    </Router>
   );
 }
+
+export default App;
