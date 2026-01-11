@@ -23,6 +23,11 @@ const authService = {
         return await axiosClient.post("/auth/refresh-token");
     },
 
+    googleAuth: async (idToken) => {
+        // Backend Requirement: POST /api/auth/google-login { idToken }
+        return await axiosClient.post("/auth/google-login", { idToken });
+    },
+
     logout: async (userId) => {
         // Strict payload: { userId: "..." } to match LogoutRequestDto
         return await axiosClient.post("/auth/logout", { userId });

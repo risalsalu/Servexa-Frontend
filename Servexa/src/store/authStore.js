@@ -41,14 +41,23 @@ export const useAuthStore = create((set, get) => ({
       // If we are Admin/ShopOwner, /users/me returns 403, so SKIP IT if we already know our role.
       if (!storedRole || storedRole === "Customer") {
         const user = await userService.getProfile();
+        // Normalize Role
+        const roleMap = {
+          "customer": "Customer",
+          "shopowner": "ShopOwner",
+          "admin": "Admin"
+        };
+        const lowerRole = user.role ? user.role.toLowerCase() : "";
+        const normalizedRole = roleMap[lowerRole] || user.role;
+
         set({
-          role: user.role,
+          role: normalizedRole,
           userId: user.id || user.userId,
           isAuthenticated: true,
           isLoading: false
         });
         // Update storage with fresh data
-        localStorage.setItem("auth_role", user.role);
+        localStorage.setItem("auth_role", normalizedRole);
         localStorage.setItem("auth_userId", user.id || user.userId);
       } else {
         // For Admin/ShopOwner, rely on the stored session for now to avoid 403.
@@ -105,6 +114,48 @@ export const useAuthStore = create((set, get) => ({
 
       return response;
     } catch (error) {
+      set({ isLoading: false, error: error.message });
+      throw error;
+    }
+  },
+
+  googleAuth: async (idToken) => {
+    set({ isLoading: true, error: null });
+    try {
+      if (!idToken) throw new Error("No Google Credentials");
+
+      const response = await authService.googleAuth(idToken);
+
+      if (response && response.data) {
+        // Response: { role, userId }
+        const { role: rawRole, userId } = response.data;
+        console.log("Google Auth Response:", response.data);
+
+        // Normalize Role
+        const roleMap = {
+          "customer": "Customer",
+          "shopowner": "ShopOwner",
+          "admin": "Admin"
+        };
+        const lowerRole = rawRole ? rawRole.toLowerCase() : "";
+        const userRole = roleMap[lowerRole] || rawRole; // Fallback to raw if not found
+
+        set({
+          role: userRole,
+          userId: userId,
+          isAuthenticated: true,
+          isLoading: false
+        });
+
+        localStorage.setItem("has_session", "true");
+        localStorage.setItem("auth_role", userRole);
+        localStorage.setItem("auth_userId", userId);
+      } else {
+        await get().checkAuth();
+      }
+      return response;
+    } catch (error) {
+      console.error("Google Auth Error:", error);
       set({ isLoading: false, error: error.message });
       throw error;
     }

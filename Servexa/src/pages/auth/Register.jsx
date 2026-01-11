@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import authService from "../../services/authService";
 import { useAuthStore } from "../../store/authStore";
+import GoogleLoginButton from "../../components/auth/GoogleLoginButton";
 
 const Register = () => {
     const [searchParams] = useSearchParams();
@@ -209,15 +210,25 @@ const Register = () => {
                         </div>
                     )}
 
-                    <div>
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
-                        >
-                            {isLoading ? "creating..." : "Create Account"}
-                        </button>
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
+                    >
+                        {isLoading ? "creating..." : "Create Account"}
+                    </button>
+
+
+                    <div className="relative my-6">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="px-2 bg-gray-50 text-gray-500">Or register with</span>
+                        </div>
                     </div>
+
+                    <GoogleLoginButton text="signup_with" />
 
                     <div className="text-center mt-4">
                         <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
@@ -225,8 +236,8 @@ const Register = () => {
                         </Link>
                     </div>
                 </form>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

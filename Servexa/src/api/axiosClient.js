@@ -2,8 +2,7 @@ import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 
 const axiosClient = axios.create({
-  baseURL: "/api", // Use relative path for Vite Proxy to work (Recommended)
-  // baseURL: "https://localhost:7078/api", // Strict requirement was requested, but Proxy is safer for cookies.
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json"

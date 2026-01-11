@@ -4,13 +4,14 @@ const serviceService = {
     // Public Shop & Service Endpoints
     getAllShops: async (params) => {
         // params like ?search=... or ?lat=&lng=
-        const response = await axiosClient.get("/api/user-services/shops", { params });
-        return response.data;
+        // Swagger Requirement: GET /api/shop
+        const response = await axiosClient.get("/shop", { params });
+        return response.data.data || response.data;
     },
 
     getShopDetails: async (shopId) => {
-        const response = await axiosClient.get(`/api/user-services/shops/${shopId}`);
-        return response.data;
+        const response = await axiosClient.get(`/user-services/shops/${shopId}`);
+        return response.data.data || response.data;
     },
 
     // Note: Backend might provide services nested in shop details or separate endpoint. 
@@ -19,10 +20,10 @@ const serviceService = {
     // Slots logic often goes here or booking service. 
     // Requirement: GET /api/slots/shop/{shopId}?date=
     getSlots: async (shopId, date) => {
-        const response = await axiosClient.get(`/api/slots/shop/${shopId}`, {
+        const response = await axiosClient.get(`/slots/shop/${shopId}`, {
             params: { date }
         });
-        return response.data;
+        return response.data.data || response.data;
     }
 };
 

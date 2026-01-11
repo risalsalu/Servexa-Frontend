@@ -1,0 +1,6 @@
+export const BookingStatus = {
+    PENDING_PAYMENT: 'PENDING_PAYMENT',
+    CONFIRMED: 'CONFIRMED',
+    COMPLETED: 'COMPLETED',
+    CANCELLED: 'CANCELLED',
+};

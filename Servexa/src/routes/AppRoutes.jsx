@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 
 // Auth Pages
@@ -12,14 +12,28 @@ import AdminDashboard from "../pages/admin/AdminDashboard";
 import ShopOwnerDashboard from "../pages/shop/ShopOwnerDashboard";
 
 // User Pages
-import Landing from "../pages/user/Landing";
+import Landing from "../pages/Landing";
 import UserDashboard from "../pages/user/UserDashboard";
 import Categories from "../pages/user/Categories";
 import Shops from "../pages/user/Shops";
 import ShopServices from "../pages/user/ShopServices";
-import BookingFlow from "../pages/user/BookingFlow";
 import Addresses from "../pages/user/Addresses";
 import CustomerProfile from "../pages/user/CustomerProfile";
+
+// Booking Pages
+import {
+  CreateBookingPage,
+  MyBookingsPage,
+  ShopBookingsPage,
+  SlotManagementPage,
+  ServiceModePage,
+  AddressSelectionPage,
+  SlotSelectionPage,
+  BookingSummaryPage,
+  PaymentPage
+} from "../features/booking";
+
+import { BookingProvider } from "../features/booking/context/BookingContext";
 
 const AppRoutes = () => {
   return (
@@ -39,6 +53,9 @@ const AppRoutes = () => {
       {/* Shop Owner Routes */}
       <Route element={<ProtectedRoute allowedRoles={["ShopOwner"]} />}>
         <Route path="/shop/*" element={<ShopOwnerDashboard />} />
+        {/* Booking Management */}
+        <Route path="/shop/bookings" element={<ShopBookingsPage />} />
+        <Route path="/shop/slots" element={<SlotManagementPage />} />
       </Route>
 
       {/* Customer Routes */}
@@ -47,7 +64,16 @@ const AppRoutes = () => {
         <Route path="/profile" element={<CustomerProfile />} />
         <Route path="/profile/addresses" element={<Addresses />} />
         <Route path="/shop/:id" element={<ShopServices />} />
-        <Route path="/booking/:bookingId" element={<BookingFlow />} />
+
+        {/* Booking Flow - Wrapped in Provider */}
+        <Route path="/booking" element={<BookingProvider><Outlet /></BookingProvider>}>
+          <Route path="create" element={<CreateBookingPage />} /> {/* Entry Point / Mode */}
+          <Route path="address" element={<AddressSelectionPage />} />
+          <Route path="slot" element={<SlotSelectionPage />} />
+          <Route path="summary" element={<BookingSummaryPage />} />
+          <Route path="payment" element={<PaymentPage />} />
+        </Route>
+        <Route path="/my-bookings" element={<MyBookingsPage />} />
       </Route>
 
       {/* Fallback */}

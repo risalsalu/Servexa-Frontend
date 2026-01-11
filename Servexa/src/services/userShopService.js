@@ -12,7 +12,7 @@ const userShopService = {
     getShopDetails: async (shopId) => {
         // According to prompt: GET /api/user-services/shops/{shopId}
         const response = await axiosClient.get(`/user-services/shops/${shopId}`);
-        return response.data?.data;
+        return response.data?.data || response.data;
     }
 };
 

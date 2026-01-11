@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 
+import GoogleLoginButton from "../../components/auth/GoogleLoginButton";
+
 const Login = () => {
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -102,6 +104,17 @@ const Login = () => {
               {isLoading ? "Signing in..." : "Sign in"}
             </button>
           </div>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-gray-50 text-gray-500">Or continue with</span>
+            </div>
+          </div>
+
+          <GoogleLoginButton />
 
           <div className="text-center mt-4">
             <span className="text-sm text-gray-500">Are you a shop owner? </span>

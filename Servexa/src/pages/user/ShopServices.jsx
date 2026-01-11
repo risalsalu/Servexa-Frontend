@@ -39,29 +39,20 @@ const ShopServices = () => {
     }
   };
 
-  const handleBookNow = async (serviceId) => {
+  const handleBookNow = (serviceId) => {
     if (!isAuthenticated) {
       navigate("/login", { state: { from: `/shop/${id}` } });
       return;
     }
 
-    try {
-      // Create draft booking
-      const draft = await bookingService.createDraft({
-        shopId: Number(id),
-        serviceId: serviceId
-      });
-
-      if (draft && draft.bookingId) {
-        setDraftBooking(draft.bookingId, id);
-        navigate(`/booking/${draft.bookingId}`);
-      } else {
-        alert("Failed to initialize booking.");
+    // Navigate to Create Booking Page (Mode Selection Step)
+    // We pass the intention (Shop + Service) but do not create the draft yet.
+    navigate("/booking/create", {
+      state: {
+        shopId: id,
+        serviceIds: [serviceId]
       }
-    } catch (err) {
-      console.error(err);
-      alert("Failed to start booking. " + (err.response?.data?.message || ""));
-    }
+    });
   };
 
   if (isLoading) return <div className="p-8 text-center">Loading shop details...</div>;
@@ -116,8 +107,8 @@ const ShopServices = () => {
                       onClick={() => handleBookNow(svc.serviceId || svc.id)}
                       disabled={!shop.isActive}
                       className={`px-6 py-2.5 rounded-lg font-medium shadow-sm transition-all ${!shop.isActive
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                          : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md'
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md'
                         }`}
                     >
                       {shop.isActive ? 'Book Now' : 'Unavailable'}
