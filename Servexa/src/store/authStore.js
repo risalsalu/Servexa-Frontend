@@ -6,79 +6,54 @@ export const useAuthStore = create((set, get) => ({
   role: null,
   userId: null,
   isAuthenticated: false,
-  isLoading: true, // Start loading by default to prevent premature redirect
+  isLoading: true, // Start loading by default
 
   checkAuth: async () => {
-    // Optimization: Check for session hint in localStorage
-    const hasSessionHint = localStorage.getItem("has_session");
+    // 1. Hydrate from localStorage (Single Source of Truth for "Session Exists")
+    const hasSession = localStorage.getItem("has_session");
     const storedRole = localStorage.getItem("auth_role");
     const storedUserId = localStorage.getItem("auth_userId");
 
-    if (!hasSessionHint) {
-      set({
-        role: null,
-        userId: null,
-        isAuthenticated: false,
-        isLoading: false
-      });
-      return;
-    }
-
-    set({ isLoading: true });
-
-    // Restore state from storage first (fast load)
-    if (storedRole && storedUserId) {
+    if (hasSession && storedRole && storedUserId) {
+      // TRUST the local storage immediately
       set({
         role: storedRole,
         userId: storedUserId,
         isAuthenticated: true,
-        // Don't set isLoading: false yet, we might want to verify
+        isLoading: false // App is ready to render protected routes
       });
-    }
 
-    try {
-      // Only call /users/me if we are a Customer, or if we don't know the role yet (first load blank)
-      // If we are Admin/ShopOwner, /users/me returns 403, so SKIP IT if we already know our role.
-      if (!storedRole || storedRole === "Customer") {
+      // 2. Background Refresh (Optional: Keep data fresh)
+      try {
         const user = await userService.getProfile();
-        // Normalize Role
-        const roleMap = {
-          "customer": "Customer",
-          "shopowner": "ShopOwner",
-          "admin": "Admin"
-        };
-        const lowerRole = user.role ? user.role.toLowerCase() : "";
-        const normalizedRole = roleMap[lowerRole] || user.role;
+        // If successful, update with fresh data (e.g. if role changed)
+        if (user) {
+          const roleMap = {
+            "customer": "Customer",
+            "shopowner": "ShopOwner",
+            "shop_owner": "ShopOwner",
+            "admin": "Admin"
+          };
+          const lowerRole = user.role ? user.role.toLowerCase() : "";
+          const normalizedRole = roleMap[lowerRole] || user.role;
 
-        set({
-          role: normalizedRole,
-          userId: user.id || user.userId,
-          isAuthenticated: true,
-          isLoading: false
-        });
-        // Update storage with fresh data
-        localStorage.setItem("auth_role", normalizedRole);
-        localStorage.setItem("auth_userId", user.id || user.userId);
-      } else {
-        // For Admin/ShopOwner, rely on the stored session for now to avoid 403.
-        // In a real app, we'd have /admin/me or /shop/me.
-        set({ isLoading: false });
+          set({
+            role: normalizedRole,
+            userId: user.id || user.userId,
+            isAuthenticated: true
+          });
+          // Update storage
+          localStorage.setItem("auth_role", normalizedRole);
+          localStorage.setItem("auth_userId", user.id || user.userId);
+        }
+      } catch (error) {
+        // SILENT FAILURE: Do NOT log out here.
+        // We assume the cookie might still be valid or this is just a network glitch.
+        // The user stays "Authenticated" in the UI. 
+        console.warn("Background auth check failed, but keeping session active:", error);
       }
-    } catch (error) {
-      // If 401, clear everything.
-      // If 403 (Forbidden) and we thought we were a Customer, maybe we aren't? 
-      // But if we are Admin/ShopOwner and accidentally called this, treat as "Authorized but wrong endpoint", don't logout.
-      if (error.response && error.response.status === 403) {
-        console.warn("CheckAuth: 403 Forbidden. User is likely authenticated but not a Customer. Keeping session.");
-        set({ isLoading: false }); // Keep existing state (if any)
-        return;
-      }
-
-      // If 401 or other error, clear session
-      console.error("CheckAuth failed", error);
-      localStorage.removeItem("has_session");
-      localStorage.removeItem("auth_role");
-      localStorage.removeItem("auth_userId");
+    } else {
+      // No session found
       set({
         role: null,
         userId: null,
@@ -93,23 +68,34 @@ export const useAuthStore = create((set, get) => ({
     try {
       const response = await authService.login(emailOrPhone, password);
 
-      // Optimistically set state from login response
       if (response && response.data) {
         const { role, userId } = response.data;
+
+        // Normalize Role
+        const roleMap = {
+          "customer": "Customer",
+          "shopowner": "ShopOwner",
+          "shop_owner": "ShopOwner", // Handle snake_case just in case
+          "admin": "Admin"
+        };
+        const rawRole = role;
+        const lowerRole = rawRole ? rawRole.toLowerCase() : "";
+        const userRole = roleMap[lowerRole] || rawRole;
+
+        // Persist critical auth data BEFORE setting state
+        localStorage.setItem("has_session", "true");
+        localStorage.setItem("auth_role", userRole);
+        localStorage.setItem("auth_userId", userId);
+
         set({
-          role: role,
+          role: userRole,
           userId: userId,
           isAuthenticated: true,
           isLoading: false
         });
-
-        // Persist critical auth data
-        localStorage.setItem("has_session", "true");
-        localStorage.setItem("auth_role", role);
-        localStorage.setItem("auth_userId", userId);
       } else {
-        localStorage.setItem("has_session", "true");
-        await get().checkAuth();
+        // Fallback usually not hit if service throws on error
+        throw new Error("Invalid response from login");
       }
 
       return response;
@@ -127,18 +113,22 @@ export const useAuthStore = create((set, get) => ({
       const response = await authService.googleAuth(idToken);
 
       if (response && response.data) {
-        // Response: { role, userId }
         const { role: rawRole, userId } = response.data;
-        console.log("Google Auth Response:", response.data);
 
         // Normalize Role
         const roleMap = {
           "customer": "Customer",
           "shopowner": "ShopOwner",
+          "shop_owner": "ShopOwner",
           "admin": "Admin"
         };
         const lowerRole = rawRole ? rawRole.toLowerCase() : "";
-        const userRole = roleMap[lowerRole] || rawRole; // Fallback to raw if not found
+        const userRole = roleMap[lowerRole] || rawRole;
+
+        // Persist
+        localStorage.setItem("has_session", "true");
+        localStorage.setItem("auth_role", userRole);
+        localStorage.setItem("auth_userId", userId);
 
         set({
           role: userRole,
@@ -146,12 +136,8 @@ export const useAuthStore = create((set, get) => ({
           isAuthenticated: true,
           isLoading: false
         });
-
-        localStorage.setItem("has_session", "true");
-        localStorage.setItem("auth_role", userRole);
-        localStorage.setItem("auth_userId", userId);
       } else {
-        await get().checkAuth();
+        throw new Error("Invalid response from Google login");
       }
       return response;
     } catch (error) {
@@ -165,25 +151,26 @@ export const useAuthStore = create((set, get) => ({
     const { userId } = get();
     set({ isLoading: true });
 
-    // Clear all session data
+    // Clear all session data immediately
     localStorage.removeItem("has_session");
     localStorage.removeItem("auth_role");
     localStorage.removeItem("auth_userId");
 
+    // Update state immediately
+    set({
+      role: null,
+      userId: null,
+      isAuthenticated: false,
+      isLoading: false
+    });
+
     try {
       if (userId) {
-        // Attempt backend logout, but don't block UI on it
-        await authService.logout(userId).catch(err => console.warn("Backend logout failed", err));
+        await authService.logout(userId).catch(console.warn);
       }
     } catch (error) {
       console.error("Logout error", error);
-    } finally {
-      set({
-        role: null,
-        userId: null,
-        isAuthenticated: false,
-        isLoading: false
-      });
     }
   }
 }));
+
