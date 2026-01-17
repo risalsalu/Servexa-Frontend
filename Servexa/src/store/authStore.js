@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { ROLES } from "../utils/roles";
 import authService from "../services/authService";
 import userService from "../services/userService";
 
@@ -29,10 +30,10 @@ export const useAuthStore = create((set, get) => ({
         // If successful, update with fresh data (e.g. if role changed)
         if (user) {
           const roleMap = {
-            "customer": "Customer",
-            "shopowner": "ShopOwner",
-            "shop_owner": "ShopOwner",
-            "admin": "Admin"
+            "customer": ROLES.CUSTOMER,
+            "shopowner": ROLES.SHOP_OWNER,
+            "shop_owner": ROLES.SHOP_OWNER,
+            "admin": ROLES.ADMIN
           };
           const lowerRole = user.role ? user.role.toLowerCase() : "";
           const normalizedRole = roleMap[lowerRole] || user.role;
@@ -40,7 +41,8 @@ export const useAuthStore = create((set, get) => ({
           set({
             role: normalizedRole,
             userId: user.id || user.userId,
-            isAuthenticated: true
+            isAuthenticated: true,
+            isLoading: false
           });
           // Update storage
           localStorage.setItem("auth_role", normalizedRole);
@@ -51,6 +53,7 @@ export const useAuthStore = create((set, get) => ({
         // We assume the cookie might still be valid or this is just a network glitch.
         // The user stays "Authenticated" in the UI. 
         console.warn("Background auth check failed, but keeping session active:", error);
+        set({ isLoading: false }); // Ensure loading stops even on error
       }
     } else {
       // No session found
@@ -73,10 +76,10 @@ export const useAuthStore = create((set, get) => ({
 
         // Normalize Role
         const roleMap = {
-          "customer": "Customer",
-          "shopowner": "ShopOwner",
-          "shop_owner": "ShopOwner", // Handle snake_case just in case
-          "admin": "Admin"
+          "customer": ROLES.CUSTOMER,
+          "shopowner": ROLES.SHOP_OWNER,
+          "shop_owner": ROLES.SHOP_OWNER,
+          "admin": ROLES.ADMIN
         };
         const rawRole = role;
         const lowerRole = rawRole ? rawRole.toLowerCase() : "";
@@ -117,10 +120,10 @@ export const useAuthStore = create((set, get) => ({
 
         // Normalize Role
         const roleMap = {
-          "customer": "Customer",
-          "shopowner": "ShopOwner",
-          "shop_owner": "ShopOwner",
-          "admin": "Admin"
+          "customer": ROLES.CUSTOMER,
+          "shopowner": ROLES.SHOP_OWNER,
+          "shop_owner": ROLES.SHOP_OWNER,
+          "admin": ROLES.ADMIN
         };
         const lowerRole = rawRole ? rawRole.toLowerCase() : "";
         const userRole = roleMap[lowerRole] || rawRole;

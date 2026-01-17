@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
+import { ROLES } from "../utils/roles";
 
 // Auth Pages
 import Login from "../pages/auth/Login";
@@ -46,12 +47,12 @@ const AppRoutes = () => {
       <Route path="/shops" element={<Shops />} />
 
       {/* Admin Routes */}
-      <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
+      <Route element={<ProtectedRoute allowedRoles={[ROLES.ADMIN]} />}>
         <Route path="/admin/*" element={<AdminDashboard />} />
       </Route>
 
       {/* Shop Owner Routes */}
-      <Route element={<ProtectedRoute allowedRoles={["ShopOwner"]} />}>
+      <Route element={<ProtectedRoute allowedRoles={[ROLES.SHOP_OWNER]} />}>
         <Route path="/shop/*" element={<ShopOwnerDashboard />} />
         {/* Booking Management */}
         <Route path="/shop/bookings" element={<ShopBookingsPage />} />
@@ -59,7 +60,7 @@ const AppRoutes = () => {
       </Route>
 
       {/* Customer Routes */}
-      <Route element={<ProtectedRoute allowedRoles={["Customer", "ShopOwner"]} />}>
+      <Route element={<ProtectedRoute allowedRoles={[ROLES.CUSTOMER, ROLES.SHOP_OWNER]} />}>
         <Route path="/dashboard" element={<UserDashboard />} />
         <Route path="/profile" element={<CustomerProfile />} />
         <Route path="/profile/addresses" element={<Addresses />} />
