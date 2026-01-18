@@ -11,6 +11,7 @@ import AdminDashboard from "../pages/admin/AdminDashboard";
 
 // Shop Pages
 import ShopOwnerDashboard from "../pages/shop/ShopOwnerDashboard";
+import CreateShop from "../pages/shop/CreateShop";
 
 // User Pages
 import Landing from "../pages/Landing";
@@ -54,6 +55,7 @@ const AppRoutes = () => {
       {/* Shop Owner Routes */}
       <Route element={<ProtectedRoute allowedRoles={[ROLES.SHOP_OWNER]} />}>
         <Route path="/shop/*" element={<ShopOwnerDashboard />} />
+        <Route path="/shop/create" element={<CreateShop />} />
         {/* Booking Management */}
         <Route path="/shop/bookings" element={<ShopBookingsPage />} />
         <Route path="/shop/slots" element={<SlotManagementPage />} />

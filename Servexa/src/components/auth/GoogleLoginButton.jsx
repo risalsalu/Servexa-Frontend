@@ -2,6 +2,7 @@ import React from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { useAuthStore } from "../../store/authStore";
 import { useNavigate } from "react-router-dom";
+import { ROLE_DASHBOARD_MAP } from "../../utils/roles";
 
 const GoogleLoginButton = ({ text = "signin_with" }) => {
     const { googleAuth, isLoading } = useAuthStore();
@@ -12,12 +13,11 @@ const GoogleLoginButton = ({ text = "signin_with" }) => {
         try {
             await googleAuth(credentialResponse.credential);
             // On success, state is updated by store
-            // Navigation is handled by the calling page or store, but we can do it here for safety
             const userRole = localStorage.getItem("auth_role");
 
-            if (userRole === "Admin") navigate("/admin");
-            else if (userRole === "ShopOwner") navigate("/shop");
-            else navigate("/dashboard");
+            // Normalize just in case, or trust storage matches constants due to authStore normalization
+            const dashboardPath = ROLE_DASHBOARD_MAP[userRole] || "/dashboard";
+            navigate(dashboardPath);
 
         } catch (error) {
             console.error("Google Auth Failed", error);

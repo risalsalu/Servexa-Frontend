@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { ROLES, ROLE_DASHBOARD_MAP } from "../../utils/roles";
 
 import GoogleLoginButton from "../../components/auth/GoogleLoginButton";
 
@@ -21,7 +22,7 @@ const Login = () => {
     try {
       console.log("Attempting login...");
       const data = await login(emailOrPhone, password);
-      console.log("Login Payload Received:", data); // DEBUG: Check for token
+      console.log("Login Payload Received:", data);
       console.log("Login successful!");
 
       // Login action updates store. 
@@ -32,9 +33,8 @@ const Login = () => {
       if (isAuthenticated && role) {
         // Role based redirect if no specific 'from' location
         if (from === "/" || from === "/login") {
-          if (role === "Admin") navigate("/admin");
-          else if (role === "ShopOwner") navigate("/shop");
-          else navigate("/dashboard");
+          const dashboardPath = ROLE_DASHBOARD_MAP[role] || "/dashboard";
+          navigate(dashboardPath);
         } else {
           navigate(from);
         }
